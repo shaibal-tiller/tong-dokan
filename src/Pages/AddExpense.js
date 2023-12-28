@@ -12,7 +12,20 @@ const InputBlock = () => {
 
     return (
         <div className='space-y-4'>
-            {/* ... Other code ... */}
+            <div className='grid grid-cols-5 gap-2'>
+                {categories.map(item => {
+                    return <div className={`bg-slate-400 bg-opacity-50 p-2  active:scale-95
+                    border-2  ${selected_cat_id==item?.id?" border-light-1":" border-transparent"} `}onClick={(e)=>setSelected_cat_id(item?.id)}>
+                 <img className='h-16 w-16 mx-auto' src={item?.image} /></div>
+                })}
+            </div>
+            <div className='grid grid-cols-5 gap-2'>
+                {products.filter(item => item?.cat_id == selected_cat_id).map(item => {
+                    return <div className={`bg-slate-400 bg-opacity-50 p-2 active:scale-95
+                    border-2 ${selected_product?.name==item?.name?" border-light-1":" border-transparent"} `} onClick={(e)=>setSelected_product(item)}>
+                        <img className='h-16 w-16 mx-auto' src={item?.image} /></div>
+                })}
+            </div>
             <div className=' space-x-2'>
                 <label className='w-1/5'>Quantity</label>
                 <div className='w-full flex items-center relative'>
@@ -61,13 +74,14 @@ const ItemCard = ({ itemName, quantity, price }) => (
         <p>{price}</p>
     </div>
 );
-
+const modes = [{ name: "credit", name_bn: "বাকি", image: credit }, { name: "cash", name_bn: "নগদ", image: cash }, { name: "card", name_bn: "কার্ড", image: card }]
 
 
 const AddExpense = () => {
 
     const [formData, setFormdata] = useState(null)
     const [itemList, setItemList] = useState(null)
+    const [pay_mode, setPay_mode] = useState('credit')
     const handleSubmit = (e) => {
         e.preventDefault()
     }
@@ -84,6 +98,10 @@ const AddExpense = () => {
         setFormdata({ date: date.toISOString(), time: date.toLocaleTimeString() });
     }, []);
 
+
+    const handleModeChange = (e, mode_name) => {
+        setPay_mode(mode_name);
+    }
     return (
         <div className="px-[8%] text-light-1 ">
             <h2 className="text-3xl py-4 tracking-wider font-semibold"> Add Expense</h2>
@@ -96,21 +114,14 @@ const AddExpense = () => {
                 <div>
                     <label>Pay Mode</label>
                     <div className='flex gap-x-4 lg:w-1/2 ' >
-                        <div>
-                            <img className=' bg-income-light w-40  bg-opacity-50 p-4 hover:bg-opacity-80 hover:cursor-pointer
-                            hover:border-2 active:scale-95 active:border-light-1 ' src={credit} />
-                            <p>বাকি</p>
-                        </div>
-                        <div>
-                            <img className=' bg-income-light w-40 bg-opacity-50 p-4 hover:bg-opacity-80 hover:cursor-pointer
-                            hover:border-2 active:scale-95 active:border-income-dark' src={cash} />
-                            <p>নগদ</p>
-                        </div>
-                        <div>
-                            <img className=' bg-income-light  w-40 bg-opacity-50 p-4 hover:bg-opacity-80 hover:cursor-pointer
-                            hover:border-2 active:scale-95 active:border-light-1' src={card} />
-                            <p>বিকাশ/কার্ড</p>
-                        </div>
+                        {modes.map((pay_item, index) => <div className='relative' onClick={(e) => handleModeChange(e, pay_item.name)}>
+
+                            <img className={` bg-income-light w-40  bg-opacity-50 p-4 hover:bg-opacity-80 hover:cursor-pointer
+                            hover:border-2 active:scale-95 active:border-light-1 ${pay_item.name == pay_mode ? 'border-2 border-light-1' : " "}`}
+                                src={pay_item.image} />
+                            <p className={`absolute bottom-2 left-1/2 -translate-x-1/2 font-semibold text-lg  ${pay_item.name == pay_mode ? '' : " opacity-50"}`}>{pay_item.name_bn}</p>
+                        </div>)}
+
                     </div>
                 </div>
                 <div>
