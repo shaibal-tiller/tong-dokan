@@ -48,7 +48,7 @@ const DatePicker = ({ onDateChange }) => {
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className="w-6 h-6 cursor-pointer"
+    className="w-6 h-6 cursor-pointer"
         onClick={increaseDay}
       >
         <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />

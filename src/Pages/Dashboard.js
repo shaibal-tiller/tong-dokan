@@ -7,6 +7,7 @@ import MonthlyProjection from '../Components/MonthlyProjection';
 import TotalBox from '../Components/TotalBox';
 import Chart from '../Components/Chart';
 import { data } from '../Assets/data';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const month = ["January", "February", "March", "April", "May", "June", "July",
@@ -26,8 +27,14 @@ const Dashboard = () => {
         <TotalBox amount={4000} title={'Due Sum '} sub={current_month} color={'#955637'} />
       </div>
       <div className='h-[30vh] w-full '>
-        <Chart data={data} datakey={'expense'}/>
+        <Chart data={data} datakey={'expense'} />
       </div>
+
+     <Link to={'/add'}> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#fff"
+       className="w-16 h-16 absolute bottom-8 left-8 bg-expense-light rounded-full">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      </svg> </Link>
+
 
 
       <AverageExpense />
