@@ -4,3 +4,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     -webkit-appearance: none;
 
 }  */
+
+.input-field{
+    @apply 
+    bg-dark-1 outline-none px-1 border-light-1 border-b-2
+}
+.input-btn{
+    @apply
+    bg-expense-light px-2 py-1 
+}

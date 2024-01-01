@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 
 const DatePicker = ({ onDateChange }) => {
+ 
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   useEffect(() => {
     const newDate = new Date(selectedDate);
     const newISOString = newDate.toISOString();
     onDateChange(newISOString);
-  }, [selectedDate, onDateChange]);
+  }, [selectedDate, onDateChange]); // Only update when selectedDate changes
 
   const decreaseDay = () => {
     const currentDate = new Date(selectedDate);
@@ -48,7 +49,7 @@ const DatePicker = ({ onDateChange }) => {
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-    className="w-6 h-6 cursor-pointer"
+        className="w-6 h-6 cursor-pointer"
         onClick={increaseDay}
       >
         <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />

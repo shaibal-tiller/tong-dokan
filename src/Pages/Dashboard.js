@@ -8,10 +8,10 @@ import TotalBox from '../Components/TotalBox';
 import Chart from '../Components/Chart';
 import { data } from '../Assets/data';
 import { Link } from 'react-router-dom';
+import { month } from '../Components/firebaseUtil';
 
 const Dashboard = () => {
-  const month = ["January", "February", "March", "April", "May", "June", "July",
-    "August", "September", "October", "November", "December"];
+
   const current_month = month[new Date().getMonth()]
 
   const current_date = new Date().toLocaleDateString()
