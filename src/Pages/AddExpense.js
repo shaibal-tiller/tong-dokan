@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import '../Assets/form.css';
-import card from '../Assets/card.png';
+
 import cash from '../Assets/cash.png';
 import credit from '../Assets/credit.png';
 import { categories, products } from '../Assets/data';
 import DatePicker from '../Components/DatePicker';
 import ItemViewer from './ItemViewerCard';
 import { GetContext } from '../Context';
-import { createTestDocument, getProductlist, getTimeStamp, testFirestore } from '../Components/firebaseUtil';
+import { createTestDocument, firestoreUpload, getProductlist, getTimeStamp, } from '../Components/firebaseUtil';
 import { db } from '../Components/firebaseConfig';
 import { addDoc, collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 
@@ -89,7 +89,7 @@ const AdjustQuantityButton = ({ onClick }) => (
 );
 
 
-const modes = [{ name: "credit", name_bn: "বাকি", image: credit }, { name: "cash", name_bn: "নগদ", image: cash }, { name: "card", name_bn: "কার্ড", image: card }]
+const modes = [{ name: "credit", name_bn: "বাকি", image: credit }, { name: "cash", name_bn: "নগদ", image: cash },]
 
 
 
@@ -133,7 +133,6 @@ const AddExpense = () => {
         e.stopPropagation()
 
         try {
-
             itemList.forEach(async (item) => {
                 console.log(item);
                 const formattedData = {
@@ -145,21 +144,13 @@ const AddExpense = () => {
                     time: item.time,
                     date: item.date,
                 };
-
-
-
-                const docRef = doc(db, 'transactions', `${getTimeStamp(item.date, item.time)}`)
-
-                await setDoc(docRef, formattedData);
-
+               await firestoreUpload(formattedData)
 
 
 
             });
 
 
-
-            // Clear itemList after sending
             const current_DateTime = new Date()
             setDateTime(current_DateTime.toLocaleTimeString(), current_DateTime.toISOString())
             setItemList(null);
@@ -176,12 +167,13 @@ const AddExpense = () => {
     };
 
 
-    const handleTest = (e) => {
+    /* const handleTest = (e) => {
         e.preventDefault()
         e.stopPropagation()
-        testFirestore({...itemList[0],pay_mode})
+        console.log(itemList[0]);
+        itemList && testFirestore({...itemList[0],pay_mode})
         // createTestDocument()
-    }
+    } */
 
     const handleModeChange = (e, mode_name) => {
         setPay_mode(mode_name);
@@ -218,8 +210,8 @@ const AddExpense = () => {
                     <button className=' mx-1 py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'
                         onClick={handleAddtoDatabase}>Send</button>
 
-                    <button className=' mx-1 py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'
-                        onClick={handleTest}>Send test</button>
+                {/*     <button className=' mx-1 py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'
+                        onClick={handleTest}>Send test</button> */}
 
 
                 </form>

@@ -52,39 +52,31 @@ export const getTimeStamp = (date, time) => {
 
 }
 
-export const testFirestore = async ({ cat_id, date, time, name, quantity, unit_price,pay_mode }) => {
-    const monthYear = `${month[new Date(date).getMonth() ].slice(0, 3)}-${new Date(date).getFullYear() % 2000}`;
-
-    const collectionRef = collection(db, 'transactions');
-    console.log(monthYear);
-    const documentRef = doc(collectionRef, monthYear);
-
+export const firestoreUpload = async ({ cat_id, date, time, product_name, quantity, unit_price, pay_mode }) => {
+console.log({ cat_id, date, time, product_name, quantity, unit_price, pay_mode });
+    const monthYear = `${month[new Date(date).getMonth()].slice(0, 3)}-${new Date(date).getFullYear() % 2000}`;
+    // console.log({ cat_id, date, time, product_name, quantity, unit_price, pay_mode });
     try {
-        // Check if the document exists
-        const documentSnapshot = await getDoc(documentRef);
+        const rootdocref = doc(db, 'transactions', monthYear)
 
-        if (documentSnapshot.exists()) {
-            // Document exists, update it
+        const newCollectionref = collection(rootdocref, pay_mode)
+        console.log(pay_mode);
+        const newdocref = doc(newCollectionref, `${getTimeStamp(date, time)}`)
 
-            await setDoc(documentRef, { cat_id, date, time, name, quantity, unit_price });
-        } else {
+        await setDoc(newdocref, { cat_id, date, time, product_name, quantity, unit_price, pay_mode })
 
-            const newCollectionRef = collection(db, "transactions", monthYear, pay_mode)
-            const newDocRef = doc(newCollectionRef, getTimeStamp(date,time));
-            await setDoc(newDocRef, { cat_id, date, time, name, quantity, unit_price });
-            // Document doesn't exist, create it
-            // await setDoc(documentRef, { cat_id, date, time, name, quantity, unit_price });
-        }
 
-        // Update your local state or any other necessary logic here
 
     } catch (error) {
         console.log('Error updating/creating document:', error);
     }
 };
 
-export const month = ["January", "February", "March", "April", "May", "June", "July",
-    "August", "September", "October", "November", "December"];
+export const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+export const getMonthIndex = (month_num) => {
+    return month_num == 11 ? 0 : month_num
+}
 export const createTestDocument = async () => {
     const testCollectionRef = collection(db, 'testCollection');
     const testDocumentRef = doc(testCollectionRef, 'testDocument');
