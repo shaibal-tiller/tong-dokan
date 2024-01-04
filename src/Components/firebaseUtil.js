@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 
 export const getProductlist = async (db, collectionName, contextSetter) => {
@@ -12,8 +12,6 @@ export const getProductlist = async (db, collectionName, contextSetter) => {
             id: doc.id,
             ...doc.data(),
         }));
-
-        console.log('Fetched Products:', products);
         contextSetter(products)
 
         return products;
@@ -53,7 +51,7 @@ export const getTimeStamp = (date, time) => {
 }
 
 export const firestoreUpload = async ({ cat_id, date, time, product_name, quantity, unit_price, pay_mode }) => {
-console.log({ cat_id, date, time, product_name, quantity, unit_price, pay_mode });
+    console.log({ cat_id, date, time, product_name, quantity, unit_price, pay_mode });
     const monthYear = `${month[new Date(date).getMonth()].slice(0, 3)}-${new Date(date).getFullYear() % 2000}`;
     // console.log({ cat_id, date, time, product_name, quantity, unit_price, pay_mode });
     try {
@@ -98,3 +96,136 @@ export const createTestDocument = async () => {
         console.error('Error creating document:', error);
     }
 };
+
+
+export const getMonthDetails = async (date, setter) => {
+    const monthIndex = date.split('/')[0] - 1
+    const yearIndex = date.split('/')[date.split('/').length - 1].slice(2, 4)
+    const documentName = `${month[monthIndex].slice(0, 3)}-${yearIndex}`
+    console.log(documentName);
+    try {
+        const transactionDocRef = doc(db, 'transactions', documentName);
+        const creditCollectionRef = collection(transactionDocRef, 'credit');
+        const cashCollectionRef = collection(transactionDocRef, 'cash');
+
+        const creditQuerySnapshot = await getDocs(creditCollectionRef);
+        const cashQuerySnapshot = await getDocs(cashCollectionRef);
+        const data = {}
+        data.credit = creditQuerySnapshot.docs.map((doc) => {
+            return doc.data()
+        });
+        data.cash = cashQuerySnapshot.docs.map((doc) => {
+            return doc.data()
+        });
+
+        setter(data)
+    } catch (error) {
+        console.error(`Error fetching data from "credit" collection in ${documentName}:`, error);
+    }
+}
+
+export const updateCredit = async (amount) => {
+    let expenses = 0
+
+    const date = new Date().toISOString()
+
+    try {
+        const expensesDocRef = doc(db, 'balance', 'expense')
+        const expensesSnapshot = await getDoc(expensesDocRef);
+
+        if (expensesSnapshot.exists()) {
+            expenses = expensesSnapshot.data().amount
+        }
+        await updateDoc(expensesDocRef, {
+            amount: expenses + amount,
+            last_update_time: date,
+        });
+    } catch (error) {
+        console.log(error);
+
+    }
+
+
+}
+export const updateCash = async (amount, syncCredit = false) => {
+    let paid = 0
+    const date = new Date().toISOString()
+    try {
+        const paidDocRef = doc(db, 'balance', 'paid')
+
+        const paidSnapshot = await getDoc(paidDocRef);
+        if (paidSnapshot.exists()) {
+            paid = paidSnapshot.data().amount
+
+        }
+        await updateDoc(paidDocRef, {
+            amount: paid + amount,
+            last_update_time: date,
+        });
+        syncCredit && updateCredit(amount)
+    } catch (error) {
+        console.log(error);
+
+    }
+
+
+}
+
+export const syncBalanceAmount = async ({ credit, cash }) => {
+    let expenses = 0
+    let paid = 0
+
+    try {
+        const expensesDocRef = (credit && credit > 0) ? doc(db, 'balance', 'expense') : null
+        const paidDocRef = (cash && cash > 0) ? doc(db, 'balance', 'paid') : null
+        if (expensesDocRef) {
+            const expensesSnapshot = await getDoc(expensesDocRef);
+
+            if (expensesSnapshot.exists()) {
+                expenses = expensesSnapshot.data().amount
+            }
+            await updateDoc(expensesDocRef, {
+                amount: expenses + credit,
+            });
+
+
+
+        }
+
+        if (paidDocRef) {
+            const paidSnapshot = await getDoc(paidDocRef);
+            if (paidSnapshot.exists()) {
+                paid = paidSnapshot.data().amount
+            }
+            await updateDoc(paidDocRef, {
+                amount: paid + cash,
+            });
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export const initializeBalance = async (setter) => {
+    try {
+        // Access the Firestore database
+      
+
+        // Get the "balance" collection
+        const balanceCollection = collection(db, 'balance');
+
+        // Get the "expense" document
+        const expenseDoc = await getDoc(doc(balanceCollection, 'expense'));
+        const expenseAmount = expenseDoc.data()?.amount || 0;
+
+        // Get the "paid" documentECB Chattar, Dhaka
+        const paidDoc = await getDoc(doc(balanceCollection, 'paid'));
+        const paidAmount = paidDoc.data()?.amount || 0;
+
+        // Update the state with the fetched data
+        setter(expenseAmount-paidAmount );
+      } catch (error) {
+        console.log('Error fetching data:', error);
+      }
+
+}

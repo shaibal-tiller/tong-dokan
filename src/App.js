@@ -12,10 +12,19 @@ import SendToFirebase from './Pages/SendToFirebase';
 
 const App = () => {
 
-  const [productList, setProductList] = useState(null)
 
-  const data= {
-    productList, setProductList
+
+  const [productList, setProductList] = useState(null)
+  const [monthExpenseDetails, setMonthExpenseDetails] = useState(null)
+  const [balance, setBalance] = useState(0)
+
+
+
+  
+  const data = {
+    productList, setProductList,
+    monthExpenseDetails, setMonthExpenseDetails,
+    balance, setBalance
   }
 
 

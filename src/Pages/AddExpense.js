@@ -7,7 +7,7 @@ import { categories, products } from '../Assets/data';
 import DatePicker from '../Components/DatePicker';
 import ItemViewer from './ItemViewerCard';
 import { GetContext } from '../Context';
-import { createTestDocument, firestoreUpload, getProductlist, getTimeStamp, } from '../Components/firebaseUtil';
+import { firestoreUpload, getProductlist, syncBalanceAmount, updateCash, updateCredit, } from '../Components/firebaseUtil';
 import { db } from '../Components/firebaseConfig';
 import { addDoc, collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 
@@ -22,7 +22,7 @@ const InputBlock = ({ selected_cat_id, setSelected_cat_id, selected_product, set
 
 
     const handleProductClick = (event, item) => {
-        console.log(item);
+
         selected_product?.id == item?.id ? setQty(qty + 1) : setQty(1)
         setSelected_product(item)
     }
@@ -117,7 +117,7 @@ const AddExpense = () => {
         const formated_data = {
             date: date, time: time,
             name: selected_product?.name,
-            pay_mode: pay_mode,
+            pay_mode: `${pay_mode}`,
             quantity: qty,
             unit_price: selected_product?.unit_price,
             cat_id: selected_product?.cat_id
@@ -131,10 +131,10 @@ const AddExpense = () => {
 
         e.preventDefault()
         e.stopPropagation()
-
+        const total = { credit: 0, cash: 0 }
         try {
-            itemList.forEach(async (item) => {
-                console.log(item);
+            itemList.forEach(async (item, index) => {
+                console.log(item.pay_mode);
                 const formattedData = {
                     product_name: item.name || '',
                     cat_id: item.cat_id,
@@ -144,12 +144,15 @@ const AddExpense = () => {
                     time: item.time,
                     date: item.date,
                 };
-               await firestoreUpload(formattedData)
+                await firestoreUpload(formattedData)
 
-
+                total[`${formattedData.pay_mode}`] += formattedData?.unit_price * formattedData?.quantity
+                if (index == itemList?.length - 1) {
+                    (total['credit'] && total['credit'] > 0) ? await updateCredit(total['credit']) : () => { };
+                    (total['cash'] && total['cash'] > 0) ? await updateCash(total['cash'],true) : () => { };
+                }
 
             });
-
 
             const current_DateTime = new Date()
             setDateTime(current_DateTime.toLocaleTimeString(), current_DateTime.toISOString())
@@ -157,9 +160,6 @@ const AddExpense = () => {
         } catch (error) {
             console.error('Error adding transactions:', error);
         }
-
-
-
     }
 
     const handleDateChange = (newDate) => {
@@ -210,7 +210,7 @@ const AddExpense = () => {
                     <button className=' mx-1 py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'
                         onClick={handleAddtoDatabase}>Send</button>
 
-                {/*     <button className=' mx-1 py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'
+                    {/*     <button className=' mx-1 py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'
                         onClick={handleTest}>Send test</button> */}
 
 
