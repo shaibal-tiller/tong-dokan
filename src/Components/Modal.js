@@ -1,4 +1,4 @@
-import { collection, doc, setDoc } from 'firebase/firestore'
+import { collection, doc, setDoc, updateDoc } from 'firebase/firestore'
 import React, { useState } from 'react'
 import { getTimeStamp, updateCash } from './firebaseUtil'
 import { db } from './firebaseConfig'
@@ -13,12 +13,17 @@ const Modal = ({ onclose }) => {
 
         const formdata = { date: date.toISOString(), amount: pay_amount }
         try {
+           
             const payCollectionRef = collection(db, 'payments')
+           
             const newDocref = doc(payCollectionRef, `${getTimeStamp(date.toLocaleDateString(), date.toLocaleTimeString())}`)
-            await setDoc(newDocref, formdata)
+            
+            await updateDoc(newDocref, formdata)
+            console.log("hello");
             updateCash(pay_amount)
             set_pay_amount(0)
             onclose(false)
+            
         } catch (error) {
             console.log(error);
         }

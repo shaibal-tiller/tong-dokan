@@ -209,7 +209,7 @@ export const syncBalanceAmount = async ({ credit, cash }) => {
 export const initializeBalance = async (setter) => {
     try {
         // Access the Firestore database
-      
+
 
         // Get the "balance" collection
         const balanceCollection = collection(db, 'balance');
@@ -223,9 +223,36 @@ export const initializeBalance = async (setter) => {
         const paidAmount = paidDoc.data()?.amount || 0;
 
         // Update the state with the fetched data
-        setter(expenseAmount-paidAmount );
-      } catch (error) {
+        setter(expenseAmount - paidAmount);
+    } catch (error) {
         console.log('Error fetching data:', error);
-      }
+    }
+
+}
+
+export const initializeMonthData =async (date,setter) => {
+
+    const monthIndex = date.split('/')[0] - 1
+    const yearIndex = date.split('/')[date.split('/').length - 1].slice(2, 4)
+    const documentName = `${month[monthIndex].slice(0, 3)}-${yearIndex}`
+    
+    try {
+        const transactionDocRef = doc(db, 'transactions', documentName);
+        const creditCollectionRef = collection(transactionDocRef, 'credit');
+        const cashCollectionRef = collection(transactionDocRef, 'cash');
+
+        const creditQuerySnapshot = await getDocs(creditCollectionRef);
+        const cashQuerySnapshot = await getDocs(cashCollectionRef);
+        const data = {}
+        data.credit = creditQuerySnapshot.docs.map((doc) => {
+            return doc.data()
+        });
+        data.cash = cashQuerySnapshot.docs.map((doc) => {
+            return doc.data()
+        });
+        setter(data)
+    } catch (error) {
+        console.error(`Error fetching data from "credit" collection in ${documentName}:`, error);
+    }
 
 }

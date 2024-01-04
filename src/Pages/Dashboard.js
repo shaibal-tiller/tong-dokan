@@ -8,7 +8,7 @@ import TotalBox from '../Components/TotalBox';
 import Chart from '../Components/Chart';
 import { data } from '../Assets/data';
 import { Link } from 'react-router-dom';
-import { getMonthDetails, initializeBalance, month } from '../Components/firebaseUtil';
+import { getMonthDetails, initializeBalance, initializeMonthData, month } from '../Components/firebaseUtil';
 import Modal from '../Components/Modal';
 import { GetContext } from '../Context';
 
@@ -28,14 +28,14 @@ const Dashboard = () => {
   }
 
 
-  useEffect(() => {
-    getMonthDetails(current_date.toLocaleDateString(), set_month_data)
-  }, [])
+  // useEffect(() => {
+  //   getMonthDetails(current_date.toLocaleDateString(), set_month_data)
+  // }, [])
 
   useEffect(() => {
     let todaytotal = 0
     let monthtotal = 0;
-    const temp_data = Object.values(month_data).map(item => {
+    const temp_data = myContext.monthExpenseDetails && Object.values(myContext.monthExpenseDetails)?.map(item => {
       item.map(in_item => {
         const data_date = new Date(in_item.date).toLocaleDateString();
         monthtotal += in_item.quantity * in_item.unit_price
@@ -46,11 +46,13 @@ const Dashboard = () => {
     })
     setMonthTotal(monthtotal)
     setToday_data(todaytotal)
-  }, [month_data])
+  }, [myContext.monthExpenseDetails])
 
 
   const initializeSetup = () => {
     initializeBalance(myContext.setBalance)
+    initializeMonthData(current_date.toLocaleDateString(),myContext.setMonthExpenseDetails)
+    
     // 2.
   }
   useEffect(() => {
