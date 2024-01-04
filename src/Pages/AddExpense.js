@@ -148,8 +148,8 @@ const AddExpense = () => {
 
                 total[`${formattedData.pay_mode}`] += formattedData?.unit_price * formattedData?.quantity
                 if (index == itemList?.length - 1) {
-                    (total['credit'] && total['credit'] > 0) ? await updateCredit(total['credit']) : () => { };
-                    (total['cash'] && total['cash'] > 0) ? await updateCash(total['cash'],true) : () => { };
+                    const x = total['credit'] && total['credit'] > 0 ? await updateCredit(total['credit']) : null;
+                    const y = total['cash'] && total['cash'] > 0 ? await updateCash(total['cash'], true) : null;
                 }
 
             });
