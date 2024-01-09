@@ -8,7 +8,7 @@ import TotalBox from '../Components/TotalBox';
 import Chart from '../Components/Chart';
 import { data } from '../Assets/data';
 import { Link } from 'react-router-dom';
-import { getMonthDetails, initializeBalance, initializeMonthData, month } from '../Components/firebaseUtil';
+import { getDataByDay, getMonthDetails, initializeBalance, initializeMonthData, month } from '../Components/firebaseUtil';
 import Modal from '../Components/Modal';
 import { GetContext } from '../Context';
 
@@ -64,6 +64,9 @@ const Dashboard = () => {
     }
   }, [isModalOpen])
 
+  useEffect(()=>{
+    getDataByDay()
+  },[])
 
   const expetedTotal = (current_total) => {
     const currentDate = new Date();

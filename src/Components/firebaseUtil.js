@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 
 export const getProductlist = async (db, collectionName, contextSetter) => {
@@ -257,3 +257,66 @@ export const initializeMonthData =async (date,setter) => {
     }
 
 }
+
+export const getDataByDay = async () => {
+    try {
+        // Calculate the start and end dates for the previous 5 days
+        const currentDate = new Date();
+        const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
+        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 4);
+
+        // Query the "transactions" collection for the specified date range
+        const transactionsCollectionRef = collection(db, 'transactions');
+        const transactionsQuery = query(
+            transactionsCollectionRef,
+            where('date', '>=', startDate.toISOString()),
+            where('date', '<', endDate.toISOString()),
+            orderBy('date')
+        );
+console.log(transactionsQuery);
+        const transactionsSnapshot = await getDocs(transactionsQuery);
+        const transactionsData = [];
+
+        transactionsSnapshot.forEach((doc) => {
+            const data = doc.data();
+            transactionsData.push({ ...data, collection: 'transactions' });
+        });
+
+        // Query the "credit" collection for the specified date range
+        const creditCollectionRef = collection(db, 'credit');
+        const creditQuery = query(
+            creditCollectionRef,
+            where('date', '>=', startDate.toISOString()),
+            where('date', '<', endDate.toISOString()),
+            orderBy('date')
+        );
+
+        const creditSnapshot = await getDocs(creditQuery);
+        const creditData = [];
+
+        creditSnapshot.forEach((doc) => {
+            const data = doc.data();
+            creditData.push({ ...data, collection: 'credit' });
+        });
+
+        // Combine and organize the data by day
+        const allData = [...transactionsData, ...creditData];
+        console.log(creditData);
+        const dataByDay = {};
+
+        allData.forEach((item) => {
+            const day = item.date; // Replace with the actual date property from your data
+            if (!dataByDay[day]) {
+                dataByDay[day] = [];
+            }
+            dataByDay[day].push(item);
+        });
+
+        console.log( dataByDay);
+
+        // Update your local state or any other necessary logic here
+
+    } catch (error) {
+        console.log('Error retrieving data:', error);
+    }
+};
