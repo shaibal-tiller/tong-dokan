@@ -112,15 +112,14 @@ const AddExpense = () => {
     const handleSubmit = (e) => {
         e.preventDefault()
         e.stopPropagation()
-
-
+console.log();
         const formated_data = {
             date: date, time: time,
-            name: selected_product?.name,
+            name: selected_product?.name ||'test',
             pay_mode: `${pay_mode}`,
             quantity: qty,
-            unit_price: selected_product?.unit_price,
-            cat_id: selected_product?.cat_id
+            unit_price: selected_product?.unit_price ||0,
+            cat_id: selected_product?.cat_id || 1
         }
         setItemList(itemList ? [...itemList, formated_data] : [formated_data])
         const current_DateTime = new Date()
@@ -134,13 +133,13 @@ const AddExpense = () => {
         const total = { credit: 0, cash: 0 }
         try {
             itemList.forEach(async (item, index) => {
-                console.log(item.pay_mode);
+                console.log(item);
                 const formattedData = {
-                    product_name: item.name || '',
-                    cat_id: item.cat_id,
+                    product_name: item.name || 'test',
+                    cat_id: item.cat_id || 1,
                     quantity: item.quantity,
                     pay_mode: item.pay_mode,
-                    unit_price: item.unit_price || 0,
+                    unit_price: item.unit_price || 1,
                     time: item.time,
                     date: item.date,
                 };

@@ -38,36 +38,55 @@ const Dashboard = () => {
     const temp_data = myContext.monthExpenseDetails && Object.values(myContext.monthExpenseDetails)?.map(item => {
       item.map(in_item => {
         const data_date = new Date(in_item.date).toLocaleDateString();
+
         monthtotal += in_item.quantity * in_item.unit_price
         if (data_date == current_date.toLocaleDateString()) {
           todaytotal += in_item.quantity * in_item.unit_price
         }
       })
     })
+
     setMonthTotal(monthtotal)
-    setToday_data(todaytotal)
+
+    myContext.set_today_data(todaytotal)
   }, [myContext.monthExpenseDetails])
 
 
   const initializeSetup = () => {
     initializeBalance(myContext.setBalance)
-    initializeMonthData(current_date.toLocaleDateString(),myContext.setMonthExpenseDetails)
-    
+    initializeMonthData(current_date.toLocaleDateString(), myContext.setMonthExpenseDetails)
+
     // 2.
   }
   useEffect(() => {
-    initializeSetup()
-  })
+    if (!isModalOpen) {
+      initializeSetup()
+    }
+  }, [isModalOpen])
+
+
+  const expetedTotal = (current_total) => {
+    const currentDate = new Date();
+
+    // Get the last day of the current month
+    const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    const daysLeft = lastDayOfMonth.getDate() - currentDate.getDate() ;
+    const daysInMonth = lastDayOfMonth.getDate();
+    
+   const current_average =  (current_total / (daysInMonth-daysLeft)) *daysInMonth
+   return Math.ceil(current_average) || 0
+  //  const reamaining_days =  
+  }
 
   return (
     <div className={`px-[10%] overflow-hidden `}>
       <div className={` ${isModalOpen ? " blur-sm" : ""}`}>
         <h1 className='text-xl font-semibold text-white'>Dashboard</h1>
         <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4  my-4'>
-          <TotalBox amount={today_data} title={'Today'} sub={current_date.toLocaleDateString()} color={'#813D37'} />
-          <TotalBox amount={myContext.balance} title={myContext.balance > 0 ? 'Due Sum' : 'Advance'} sub={current_month} color={'#955637'} />
+          <TotalBox amount={myContext.today_data} title={'Today'} sub={current_date.toLocaleDateString()} color={'#813D37'} />
+          <TotalBox amount={myContext.balance} title={myContext.balance < 0 ? 'Advance' : 'Due sum'} sub={current_month} color={'#955637'} />
           <TotalBox amount={monthTotal} title={'This Month'} sub={current_month} color={'#68272E'} />
-          <TotalBox title={'Expected '} sub={current_month} color={'#955637'} />
+          <TotalBox amount={expetedTotal(monthTotal)} title={'Expected '} sub={current_month} color={'#955637'} />
         </div>
         <div className='h-[30vh] w-full '>
           <Chart data={data} datakey={'expense'} />

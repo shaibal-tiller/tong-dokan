@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, updateDoc } from 'firebase/firestore'
+import { addDoc, collection, doc, setDoc, updateDoc } from 'firebase/firestore'
 import React, { useState } from 'react'
 import { getTimeStamp, updateCash } from './firebaseUtil'
 import { db } from './firebaseConfig'
@@ -15,16 +15,17 @@ const Modal = ({ onclose }) => {
         try {
            
             const payCollectionRef = collection(db, 'payments')
-           
+          
             const newDocref = doc(payCollectionRef, `${getTimeStamp(date.toLocaleDateString(), date.toLocaleTimeString())}`)
+          
+            await setDoc(newDocref, formdata)
             
-            await updateDoc(newDocref, formdata)
-            console.log("hello");
             updateCash(pay_amount)
             set_pay_amount(0)
             onclose(false)
             
         } catch (error) {
+
             console.log(error);
         }
 
@@ -32,7 +33,7 @@ const Modal = ({ onclose }) => {
     }
     const handleChange = (e) => {
 
-        set_pay_amount(e.target.value)
+        set_pay_amount(parseInt(e.target.value))
     }
     const handlebody = (e) => {
         e.target.classList[0] == 'modal-container' && onclose(false)
@@ -50,7 +51,7 @@ const Modal = ({ onclose }) => {
                     <button onClick={(e) => set_pay_amount(1000)} className={`${pay_amount == 1000 ? "text-expense-light " : "  text-white"} active:scale-95 text-center bg-income-light px-2 rounded-md `}>1000</button>
                 </div>
 
-                <input onChange={handleChange} type='number' value={pay_amount} className='font-mono  px-1 bg-opacity-10 outline-none mx-auto rounded-md font-semibold' />
+                <input onChange={handleChange} type='number' value={parseInt(pay_amount)} className='font-mono  px-1 bg-opacity-10 outline-none mx-auto rounded-md font-semibold' />
                 <div className='flex items-center w-full px-[20%]  gap-2'>
                     <button className='w-full  px-1 text-center bg-slate-400 rounded-md mt-2 active:scale-95 hover:bg-slate-300 font-semibold ' onClick={(e) => handlePayment(e)}>Pay</button>
                     <button className='w-full  px-1 text-center bg-slate-400 rounded-md mt-2 active:scale-95 hover:bg-slate-300 font-semibold ' onClick={() => onclose(false)}>Cancel</button>

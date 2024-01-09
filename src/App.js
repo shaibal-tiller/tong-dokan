@@ -17,14 +17,16 @@ const App = () => {
   const [productList, setProductList] = useState(null)
   const [monthExpenseDetails, setMonthExpenseDetails] = useState(null)
   const [balance, setBalance] = useState(0)
+  const [today_data, set_today_data] = useState(0)
 
 
 
-  
+
   const data = {
     productList, setProductList,
     monthExpenseDetails, setMonthExpenseDetails,
-    balance, setBalance
+    balance, setBalance,
+    today_data, set_today_data
   }
 
 

@@ -27,7 +27,7 @@ const TotalBox = ({amount, title, color, sub }) => {
     <h2 className='font-semibold tracking-wider text-md capitalize text-center'>{title}</h2>
     <div>
       <p className="text-xs font-thin text-center">{sub}</p>
-      <p className='font-bold text-3xl'>৳{amount}</p>
+      <p className='font-bold text-3xl'>৳{amount<0? amount* -1 :amount}</p>
     </div>
   </div>)
 }

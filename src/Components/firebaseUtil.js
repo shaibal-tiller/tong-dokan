@@ -216,13 +216,14 @@ export const initializeBalance = async (setter) => {
 
         // Get the "expense" document
         const expenseDoc = await getDoc(doc(balanceCollection, 'expense'));
+       
         const expenseAmount = expenseDoc.data()?.amount || 0;
-
         // Get the "paid" documentECB Chattar, Dhaka
         const paidDoc = await getDoc(doc(balanceCollection, 'paid'));
         const paidAmount = paidDoc.data()?.amount || 0;
 
         // Update the state with the fetched data
+        console.log(expenseAmount);
         setter(expenseAmount - paidAmount);
     } catch (error) {
         console.log('Error fetching data:', error);
