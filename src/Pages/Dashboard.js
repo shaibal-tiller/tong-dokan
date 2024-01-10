@@ -22,7 +22,7 @@ const Dashboard = () => {
   const [month_data, set_month_data] = useState([])
   const [today_data, setToday_data] = useState(0)
   const [monthTotal, setMonthTotal] = useState(0)
-
+  const [test, set_test] = useState("")
   const handlePlusClick = (e) => {
     setOptionsOpen(!optionsOpen)
   }
@@ -35,12 +35,13 @@ const Dashboard = () => {
   useEffect(() => {
     let todaytotal = 0
     let monthtotal = 0;
-    const temp_data = myContext.monthExpenseDetails && Object.values(myContext.monthExpenseDetails)?.map(item => {
-      item.map(in_item => {
-        const data_date = new Date(in_item.date).toLocaleDateString();
 
+    const temp_data = myContext.monthExpenseDetails && Object.values(myContext.monthExpenseDetails)?.map(item => {
+      item.map((in_item, index) => {
+        { index == 0 && set_test(in_item?.date) }
+        const data_date = new Date(in_item.date).getDate()
         monthtotal += in_item.quantity * in_item.unit_price
-        if (data_date == current_date.toLocaleDateString()) {
+        if (data_date == current_date.getDate()) {
           todaytotal += in_item.quantity * in_item.unit_price
         }
       })
@@ -64,21 +65,21 @@ const Dashboard = () => {
     }
   }, [isModalOpen])
 
-  useEffect(()=>{
+  useEffect(() => {
     getDataByDay()
-  },[])
+  }, [])
 
   const expetedTotal = (current_total) => {
     const currentDate = new Date();
 
     // Get the last day of the current month
     const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-    const daysLeft = lastDayOfMonth.getDate() - currentDate.getDate() ;
+    const daysLeft = lastDayOfMonth.getDate() - currentDate.getDate();
     const daysInMonth = lastDayOfMonth.getDate();
-    
-   const current_average =  (current_total / (daysInMonth-daysLeft)) *daysInMonth
-   return Math.ceil(current_average) || 0
-  //  const reamaining_days =  
+
+    const current_average = (current_total / (daysInMonth - daysLeft)) * daysInMonth
+    return Math.ceil(current_average) || 0
+    //  const reamaining_days =  
   }
 
   return (
@@ -94,7 +95,7 @@ const Dashboard = () => {
         <div className='h-[30vh] w-full '>
           <Chart data={data} datakey={'expense'} />
         </div>
-
+        <p>{test}</p>
         <div className=' absolute bottom-8 left-8 w-[5rem] gap-x-2 h-[5rem] rounded-full  right-0'>
 
           <div onClick={handlePlusClick}> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#fff"

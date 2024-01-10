@@ -216,7 +216,7 @@ export const initializeBalance = async (setter) => {
 
         // Get the "expense" document
         const expenseDoc = await getDoc(doc(balanceCollection, 'expense'));
-       
+
         const expenseAmount = expenseDoc.data()?.amount || 0;
         // Get the "paid" documentECB Chattar, Dhaka
         const paidDoc = await getDoc(doc(balanceCollection, 'paid'));
@@ -231,12 +231,12 @@ export const initializeBalance = async (setter) => {
 
 }
 
-export const initializeMonthData =async (date,setter) => {
+export const initializeMonthData = async (date, setter) => {
 
     const monthIndex = date.split('/')[0] - 1
     const yearIndex = date.split('/')[date.split('/').length - 1].slice(2, 4)
     const documentName = `${month[monthIndex].slice(0, 3)}-${yearIndex}`
-    
+
     try {
         const transactionDocRef = doc(db, 'transactions', documentName);
         const creditCollectionRef = collection(transactionDocRef, 'credit');
@@ -245,11 +245,12 @@ export const initializeMonthData =async (date,setter) => {
         const creditQuerySnapshot = await getDocs(creditCollectionRef);
         const cashQuerySnapshot = await getDocs(cashCollectionRef);
         const data = {}
+
         data.credit = creditQuerySnapshot.docs.map((doc) => {
-            return doc.data()
+            return { doc_id: doc.id, ...doc.data(), }
         });
         data.cash = cashQuerySnapshot.docs.map((doc) => {
-            return doc.data()
+            return { doc_id: doc.id, ...doc.data(), }
         });
         setter(data)
     } catch (error) {
@@ -273,7 +274,7 @@ export const getDataByDay = async () => {
             where('date', '<', endDate.toISOString()),
             orderBy('date')
         );
-console.log(transactionsQuery);
+        console.log(transactionsQuery);
         const transactionsSnapshot = await getDocs(transactionsQuery);
         const transactionsData = [];
 
@@ -312,7 +313,7 @@ console.log(transactionsQuery);
             dataByDay[day].push(item);
         });
 
-        console.log( dataByDay);
+        console.log(dataByDay);
 
         // Update your local state or any other necessary logic here
 
