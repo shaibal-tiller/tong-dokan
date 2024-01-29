@@ -10,7 +10,7 @@ const Modal = ({ onclose }) => {
 
     const handlePayment = async (e) => {
         const date = new Date()
-
+console.log(  date.toISOString());
         const formdata = { date: date.toISOString(), amount: pay_amount }
         try {
            

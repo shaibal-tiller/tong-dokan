@@ -1,5 +1,5 @@
 // App.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import NavBar from './Components/NavBar';
 import SideDrawer from './Components/SideDrawer ';
 import Dashboard from './Pages/Dashboard';
@@ -18,7 +18,7 @@ const App = () => {
   const [monthExpenseDetails, setMonthExpenseDetails] = useState(null)
   const [balance, setBalance] = useState(0)
   const [today_data, set_today_data] = useState(0)
-
+  const [huddai, setHuddai] = useState(0)
 
 
 
@@ -26,7 +26,8 @@ const App = () => {
     productList, setProductList,
     monthExpenseDetails, setMonthExpenseDetails,
     balance, setBalance,
-    today_data, set_today_data
+    today_data, set_today_data,
+    huddai, setHuddai
   }
 
 

@@ -24,41 +24,23 @@ export const getProductlist = async (db, collectionName, contextSetter) => {
 
 export const getTimeStamp = (date, time) => {
 
+    const date_part = new Date(date).toDateString()
+    const time_part = new Date(time).toTimeString().split('GMT')[0].trim()
 
-    // Parse the date string
-    const parsedDate = new Date(date);
-
-    // Extract hours, minutes, and seconds from the time string
-    const [hours, minutes, seconds] = time.split(':');
-    const [secondsValue, period] = seconds.split(' ');
-
-    // Adjust hours based on the period (AM/PM)
-    let adjustedHours = parseInt(hours, 10);
-    if (period === 'PM' && adjustedHours < 12) {
-        adjustedHours += 12;
-    } else if (period === 'AM' && adjustedHours === 12) {
-        adjustedHours = 0;
-    }
-
-    // Set the time components to the parsed date
-    parsedDate.setHours(adjustedHours, parseInt(minutes, 10), parseInt(secondsValue, 10));
-
-    // Get the timestamp in milliseconds
-    const timestamp = parsedDate.getTime();
-    console.log(timestamp);
-    return timestamp
+    return `${date_part} ${time_part}`
 
 }
 
 export const firestoreUpload = async ({ cat_id, date, time, product_name, quantity, unit_price, pay_mode }) => {
-    console.log({ cat_id, date, time, product_name, quantity, unit_price, pay_mode });
-    const monthYear = `${month[new Date(date).getMonth()].slice(0, 3)}-${new Date(date).getFullYear() % 2000}`;
-    // console.log({ cat_id, date, time, product_name, quantity, unit_price, pay_mode });
+
+    const monthYear = `${month[new Date(date).getMonth()]?.slice(0, 3)}-${new Date(date).getFullYear() % 2000}`;
+
+
     try {
         const rootdocref = doc(db, 'transactions', monthYear)
 
         const newCollectionref = collection(rootdocref, pay_mode)
-        console.log(pay_mode);
+
         const newdocref = doc(newCollectionref, `${getTimeStamp(date, time)}`)
 
         await setDoc(newdocref, { cat_id, date, time, product_name, quantity, unit_price, pay_mode })
@@ -100,9 +82,9 @@ export const createTestDocument = async () => {
 
 export const getMonthDetails = async (date, setter) => {
     const monthIndex = date.split('/')[0] - 1
-    const yearIndex = date.split('/')[date.split('/').length - 1].slice(2, 4)
-    const documentName = `${month[monthIndex].slice(0, 3)}-${yearIndex}`
-    console.log(documentName);
+    const yearIndex = date.split('/')[date.split('/').length - 1]?.slice(2, 4)
+    const documentName = `${month[monthIndex]?.slice(0, 3)}-${yearIndex}`
+
     try {
         const transactionDocRef = doc(db, 'transactions', documentName);
         const creditCollectionRef = collection(transactionDocRef, 'credit');
@@ -223,7 +205,7 @@ export const initializeBalance = async (setter) => {
         const paidAmount = paidDoc.data()?.amount || 0;
 
         // Update the state with the fetched data
-        console.log(expenseAmount);
+
         setter(expenseAmount - paidAmount);
     } catch (error) {
         console.log('Error fetching data:', error);
@@ -233,9 +215,11 @@ export const initializeBalance = async (setter) => {
 
 export const initializeMonthData = async (date, setter) => {
 
-    const monthIndex = date.split('/')[0] - 1
-    const yearIndex = date.split('/')[date.split('/').length - 1].slice(2, 4)
-    const documentName = `${month[monthIndex].slice(0, 3)}-${yearIndex}`
+    const monthIndex = date.getMonth()
+
+    const yearIndex = `${date.getFullYear()}`.slice(2, 4)
+    const documentName = `${month[monthIndex]?.slice(0, 3)}-${yearIndex}`
+  
 
     try {
         const transactionDocRef = doc(db, 'transactions', documentName);
@@ -274,7 +258,7 @@ export const getDataByDay = async () => {
             where('date', '<', endDate.toISOString()),
             orderBy('date')
         );
-        console.log(transactionsQuery);
+
         const transactionsSnapshot = await getDocs(transactionsQuery);
         const transactionsData = [];
 
@@ -302,7 +286,7 @@ export const getDataByDay = async () => {
 
         // Combine and organize the data by day
         const allData = [...transactionsData, ...creditData];
-        console.log(creditData);
+
         const dataByDay = {};
 
         allData.forEach((item) => {
@@ -313,7 +297,7 @@ export const getDataByDay = async () => {
             dataByDay[day].push(item);
         });
 
-        console.log(dataByDay);
+
 
         // Update your local state or any other necessary logic here
 

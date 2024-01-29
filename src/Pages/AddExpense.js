@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import '../Assets/form.css';
-
 import cash from '../Assets/cash.png';
 import credit from '../Assets/credit.png';
 import { categories, products } from '../Assets/data';
@@ -87,12 +86,7 @@ const AdjustQuantityButton = ({ onClick }) => (
         <path strokeLinecap='round' strokeLinejoin='round' d='M12 4.5v15' />
     </svg>
 );
-
-
 const modes = [{ name: "credit", name_bn: "বাকি", image: credit }, { name: "cash", name_bn: "নগদ", image: cash },]
-
-
-
 const AddExpense = () => {
     const [itemList, setItemList] = useState(null)
     const [pay_mode, setPay_mode] = useState('credit')
@@ -109,19 +103,46 @@ const AddExpense = () => {
         const initial_Date = new Date()
         setDateTime(initial_Date.toLocaleTimeString(), initial_Date.toISOString())
     }, [])
+
+    const updateItemList = (formated_data) => {
+        if (itemList) {
+            const existingItemIndex = itemList.findIndex(item =>
+                item.cat_id === formated_data.cat_id &&
+                item.pay_mode === formated_data.pay_mode &&
+                item.name === formated_data.name
+            );
+
+
+            if (existingItemIndex !== -1) {
+                let temp_itemList = [...itemList]
+                temp_itemList[existingItemIndex].quantity += formated_data.quantity
+                setItemList(temp_itemList)
+            }
+            else {
+                setItemList([...itemList, formated_data])
+            }
+        }
+        else {
+            setItemList([formated_data])
+        }
+
+    }
+
+
     const handleSubmit = (e) => {
+
         e.preventDefault()
         e.stopPropagation()
-console.log();
         const formated_data = {
             date: date, time: time,
-            name: selected_product?.name ||'test',
+            name: selected_product?.name || 'test',
             pay_mode: `${pay_mode}`,
             quantity: qty,
-            unit_price: selected_product?.unit_price ||0,
+            unit_price: selected_product?.unit_price || 0,
             cat_id: selected_product?.cat_id || 1
         }
-        setItemList(itemList ? [...itemList, formated_data] : [formated_data])
+        updateItemList(formated_data)
+
         const current_DateTime = new Date()
         setDateTime(current_DateTime.toLocaleTimeString(), current_DateTime.toISOString())
     }
@@ -133,7 +154,7 @@ console.log();
         const total = { credit: 0, cash: 0 }
         try {
             itemList.forEach(async (item, index) => {
-                console.log(item);
+           
                 const formattedData = {
                     product_name: item.name || 'test',
                     cat_id: item.cat_id || 1,
@@ -191,7 +212,6 @@ console.log();
                         <label>Pay Mode</label>
                         <div className='flex gap-x-4 lg:w-1/2 ' >
                             {modes.map((pay_item, index) => <div className='relative' onClick={(e) => handleModeChange(e, pay_item.name)}>
-
                                 <img className={` bg-income-light w-40  bg-opacity-50 p-4 hover:bg-opacity-80 hover:cursor-pointer
                             hover:border-2 active:scale-95 active:border-light-1 ${pay_item.name == pay_mode ? 'border-2 border-light-1' : " "}`}
                                     src={pay_item.image} />
@@ -208,7 +228,6 @@ console.log();
                         className=' py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'>Add Item</button>
                     <button className=' mx-1 py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'
                         onClick={handleAddtoDatabase}>Send</button>
-
                     {/*     <button className=' mx-1 py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'
                         onClick={handleTest}>Send test</button> */}
 
