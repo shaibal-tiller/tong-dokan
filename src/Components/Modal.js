@@ -1,6 +1,6 @@
 import { addDoc, collection, doc, setDoc, updateDoc } from 'firebase/firestore'
 import React, { useState } from 'react'
-import { getTimeStamp, updateCash } from './firebaseUtil'
+import { getTimeStamp, getTimeStampFromObject, updateCash } from './firebaseUtil'
 import { db } from './firebaseConfig'
 
 const Modal = ({ onclose }) => {
@@ -10,17 +10,17 @@ const Modal = ({ onclose }) => {
 
     const handlePayment = async (e) => {
         const date = new Date()
-console.log(  date.toISOString());
+        
         const formdata = { date: date.toISOString(), amount: pay_amount }
         try {
            
             const payCollectionRef = collection(db, 'payments')
           
-            const newDocref = doc(payCollectionRef, `${getTimeStamp(date.toLocaleDateString(), date.toLocaleTimeString())}`)
+            const newDocref = doc(payCollectionRef, `${getTimeStampFromObject(date)}`)
           
             await setDoc(newDocref, formdata)
             
-            updateCash(pay_amount)
+            updateCash(parseInt(pay_amount))
             set_pay_amount(0)
             onclose(false)
             

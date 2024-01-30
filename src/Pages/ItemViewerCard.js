@@ -3,14 +3,16 @@ import React, { useEffect, useState } from 'react'
 const ItemViewer = ({ list }) => {
 
 
-    const [total, setTotal] = useState(null)
+    const [total, setTotal] = useState(0) 
     useEffect(() => {
-        setTotal(list ? parseInt(list[list.length - 1].unit_price * list[list.length - 1].quantity) + total : 0)
+        let temp_value=0
+        list?.map(el=>{temp_value+=el.quantity *el.unit_price})
+        setTotal(temp_value )
     }, [list])
     return (
         <div className='w-40 px-4 space-y-2'>
 
-            <p>Total: <b>{total}</b></p>
+            <p>Total : <b>{total}</b></p>
 
             {list?.map(item => {
                 return (<div className='text-xs  px-2 '>

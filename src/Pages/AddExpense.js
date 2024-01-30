@@ -130,7 +130,6 @@ const AddExpense = () => {
 
 
     const handleSubmit = (e) => {
-
         e.preventDefault()
         e.stopPropagation()
         const formated_data = {
@@ -148,13 +147,11 @@ const AddExpense = () => {
     }
 
     const handleAddtoDatabase = async (e) => {
-
         e.preventDefault()
         e.stopPropagation()
         const total = { credit: 0, cash: 0 }
         try {
             itemList.forEach(async (item, index) => {
-           
                 const formattedData = {
                     product_name: item.name || 'test',
                     cat_id: item.cat_id || 1,
@@ -165,10 +162,9 @@ const AddExpense = () => {
                     date: item.date,
                 };
                 await firestoreUpload(formattedData)
-
                 total[`${formattedData.pay_mode}`] += formattedData?.unit_price * formattedData?.quantity
                 if (index == itemList?.length - 1) {
-                    const x = total['credit'] && total['credit'] > 0 ? await updateCredit(total['credit']) : null;
+                    const x = total['credit'] && total['credit'] > 0 ? await updateCredit(parseInt(total['credit'])) : null;
                     const y = total['cash'] && total['cash'] > 0 ? await updateCash(total['cash'], true) : null;
                 }
 
@@ -185,15 +181,6 @@ const AddExpense = () => {
     const handleDateChange = (newDate) => {
         setDate(newDate)
     };
-
-
-    /* const handleTest = (e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        console.log(itemList[0]);
-        itemList && testFirestore({...itemList[0],pay_mode})
-        // createTestDocument()
-    } */
 
     const handleModeChange = (e, mode_name) => {
         setPay_mode(mode_name);

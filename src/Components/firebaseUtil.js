@@ -30,6 +30,12 @@ export const getTimeStamp = (date, time) => {
     return `${date_part} ${time_part}`
 
 }
+export const getTimeStampFromObject = (date) => {
+    const date_part = date.toDateString()
+    const time_part = date.toTimeString().split('GMT')[0].trim()
+    return `${date_part} ${time_part}`
+
+}
 
 export const firestoreUpload = async ({ cat_id, date, time, product_name, quantity, unit_price, pay_mode }) => {
 
@@ -118,7 +124,7 @@ export const updateCredit = async (amount) => {
         if (expensesSnapshot.exists()) {
             expenses = expensesSnapshot.data().amount
         }
-        await updateDoc(expensesDocRef, {
+        await setDoc(expensesDocRef, {
             amount: expenses + amount,
             last_update_time: date,
         });
@@ -134,13 +140,13 @@ export const updateCash = async (amount, syncCredit = false) => {
     const date = new Date().toISOString()
     try {
         const paidDocRef = doc(db, 'balance', 'paid')
-
+    
         const paidSnapshot = await getDoc(paidDocRef);
         if (paidSnapshot.exists()) {
             paid = paidSnapshot.data().amount
 
         }
-        await updateDoc(paidDocRef, {
+        await setDoc(paidDocRef, {
             amount: paid + amount,
             last_update_time: date,
         });
@@ -219,7 +225,7 @@ export const initializeMonthData = async (date, setter) => {
 
     const yearIndex = `${date.getFullYear()}`.slice(2, 4)
     const documentName = `${month[monthIndex]?.slice(0, 3)}-${yearIndex}`
-  
+
 
     try {
         const transactionDocRef = doc(db, 'transactions', documentName);

@@ -35,7 +35,7 @@ const Dashboard = () => {
   useEffect(() => {
     let todaytotal = 0
     let monthtotal = 0;
-console.log(myContext.monthExpenseDetails);
+
     const temp_data = myContext.monthExpenseDetails && Object.values(myContext.monthExpenseDetails)?.map(item => {
       
       item.map((in_item, index) => {
@@ -88,7 +88,7 @@ console.log(myContext.monthExpenseDetails);
     <div className={`px-[10%] overflow-hidden `}>
       <div className={` ${isModalOpen ? " blur-sm" : ""}`}>
         <h1 className='text-xl font-semibold text-white'>Dashboard</h1>
-        {Object.entries(myContext.monthExpenseDetails||{}).length}
+        
         <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4  my-4'>
           <TotalBox amount={myContext.today_data} title={'Today'} sub={current_date.toLocaleDateString()} color={'#813D37'} />
           <TotalBox amount={myContext.balance} title={myContext.balance < 0 ? 'Advance' : 'Due sum'} sub={current_month} color={'#955637'} />
@@ -98,7 +98,7 @@ console.log(myContext.monthExpenseDetails);
         <div className='hidden h-[30vh] w-full '>
           <Chart data={data} datakey={'expense'} />
         </div>
-        <p>{new Date().toTimeString().split('(')[0]}</p>
+     
         <div className=' absolute bottom-8 left-8 w-[5rem] gap-x-2 h-[5rem] rounded-full  right-0'>
           <div onClick={handlePlusClick}> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#fff"
             className="w-full h-full  bg-expense-light rounded-full ">
@@ -110,10 +110,10 @@ console.log(myContext.monthExpenseDetails);
           <button onClick={(e) => { setIsModalOpen(true) }} className='bg-dark-1 border-2 px-2' >Add payment</button >
           <button className='bg-dark-1 border-2 px-2' >Beta Version</button >
         </div>}
-        <AverageExpense />
+{/*         <AverageExpense />
         <ExpenseChart />
         <FavoriteItems />
-        <MonthlyProjection />
+        <MonthlyProjection /> */}
       </div>
       {isModalOpen && <Modal onclose={setIsModalOpen} />}
     </div>
