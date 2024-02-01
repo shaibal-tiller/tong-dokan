@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import '../Assets/form.css';
 import cash from '../Assets/cash.png';
 import credit from '../Assets/credit.png';
-import { categories, products } from '../Assets/data';
+import { cat_product_list, categories, data, products } from '../Assets/data';
 import DatePicker from '../Components/DatePicker';
 import ItemViewer from './ItemViewerCard';
 import { GetContext } from '../Context';
@@ -11,17 +11,18 @@ import { db } from '../Components/firebaseConfig';
 import { addDoc, collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 const InputBlock = ({ selected_cat_id, setSelected_cat_id, selected_product, setSelected_product, qty, setQty }) => {
+    const myContext = GetContext()//
 
 
-    const myContext = GetContext()
-
-    const productList = myContext.productList ? myContext.productList : getProductlist(db, 'productList', myContext.setProductList)
-
+    const [productList, setProductList] = useState(cat_product_list[selected_cat_id]) //myContext.productList ? myContext.productList : getProductlist(db, 'productList', myContext.setProductList)
+    useEffect(() => {
+        setProductList(cat_product_list[selected_cat_id])
+    }, [selected_cat_id])
 
 
 
     const handleProductClick = (event, item) => {
-
+        console.log(selected_product);
         selected_product?.id == item?.id ? setQty(qty + 1) : setQty(1)
         setSelected_product(item)
     }
@@ -39,7 +40,7 @@ const InputBlock = ({ selected_cat_id, setSelected_cat_id, selected_product, set
                 })}
             </div>
             <div className='grid grid-cols-5 gap-2'>
-                {productList && productList.length && productList?.filter(item => item?.cat_id == selected_cat_id).map(item => {
+                {productList && productList.length && productList?.map(item => {
                     return <div className={`bg-slate-400 bg-opacity-50 p-2 active:scale-95
                     border-2 ${selected_product?.name == item?.name ? " border-light-1" : " border-transparent"} `}
                         onClick={(e) => handleProductClick(e, item)}>
@@ -86,6 +87,9 @@ const AdjustQuantityButton = ({ onClick }) => (
         <path strokeLinecap='round' strokeLinejoin='round' d='M12 4.5v15' />
     </svg>
 );
+const oneTime =()=>{
+    console.log(Object.entries(cat_product_list).map(el=>el[1].map((e,index)=>{return{...e,id:`${e.cat_id}${index+1}`}})));
+}
 const modes = [{ name: "credit", name_bn: "বাকি", image: credit }, { name: "cash", name_bn: "নগদ", image: cash },]
 const AddExpense = () => {
     const [itemList, setItemList] = useState(null)
@@ -95,6 +99,8 @@ const AddExpense = () => {
     const [qty, setQty] = useState(1);
     const [time, setTime] = useState(null)
     const [date, setDate] = useState(null)
+    const [test_index, set_test_index] = useState(0)
+    const myContext = GetContext()
     const setDateTime = (date, time) => {
         setDate(date)
         setTime(time)
@@ -102,6 +108,7 @@ const AddExpense = () => {
     useEffect(() => {
         const initial_Date = new Date()
         setDateTime(initial_Date.toLocaleTimeString(), initial_Date.toISOString())
+        oneTime()
     }, [])
 
     const updateItemList = (formated_data) => {
@@ -130,17 +137,20 @@ const AddExpense = () => {
 
 
     const handleSubmit = (e) => {
+
         e.preventDefault()
         e.stopPropagation()
+        set_test_index(test_index + 1)
         const formated_data = {
             date: date, time: time,
-            name: selected_product?.name || 'test',
+            name: selected_product?.name || 'test' + test_index,
             pay_mode: `${pay_mode}`,
             quantity: qty,
+            previous_due: myContext.balance,
             unit_price: selected_product?.unit_price || 0,
             cat_id: selected_product?.cat_id || 1
         }
-        updateItemList(formated_data)
+        updateItemList({ ...formated_data })
 
         const current_DateTime = new Date()
         setDateTime(current_DateTime.toLocaleTimeString(), current_DateTime.toISOString())
@@ -153,11 +163,12 @@ const AddExpense = () => {
         try {
             itemList.forEach(async (item, index) => {
                 const formattedData = {
-                    product_name: item.name || 'test',
+                    product_name: item.name || 'test' + index,
                     cat_id: item.cat_id || 1,
                     quantity: item.quantity,
                     pay_mode: item.pay_mode,
                     unit_price: item.unit_price || 1,
+                    previous_due: item?.previous_due || 2,
                     time: item.time,
                     date: item.date,
                 };

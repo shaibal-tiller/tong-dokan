@@ -37,7 +37,7 @@ export const getTimeStampFromObject = (date) => {
 
 }
 
-export const firestoreUpload = async ({ cat_id, date, time, product_name, quantity, unit_price, pay_mode }) => {
+export const firestoreUpload = async ({ cat_id, date, time, product_name, quantity, unit_price, pay_mode, previous_due }) => {
 
     const monthYear = `${month[new Date(date).getMonth()]?.slice(0, 3)}-${new Date(date).getFullYear() % 2000}`;
 
@@ -49,7 +49,7 @@ export const firestoreUpload = async ({ cat_id, date, time, product_name, quanti
 
         const newdocref = doc(newCollectionref, `${getTimeStamp(date, time)}`)
 
-        await setDoc(newdocref, { cat_id, date, time, product_name, quantity, unit_price, pay_mode })
+        await setDoc(newdocref, { cat_id, date, time, product_name, quantity, unit_price, pay_mode, previous_due })
 
 
 
@@ -140,7 +140,7 @@ export const updateCash = async (amount, syncCredit = false) => {
     const date = new Date().toISOString()
     try {
         const paidDocRef = doc(db, 'balance', 'paid')
-    
+
         const paidSnapshot = await getDoc(paidDocRef);
         if (paidSnapshot.exists()) {
             paid = paidSnapshot.data().amount
@@ -311,3 +311,67 @@ export const getDataByDay = async () => {
         console.log('Error retrieving data:', error);
     }
 };
+
+export const getValuesFromDocument = async (documentName = 'Feb-24') => {
+
+    const creditCollectionRef = collection(db, `transactions/${documentName}/credit`);
+    const cashCollectionRef = collection(db, `transactions/${documentName}/cash`);
+
+    const creditSnapshot = await getDocs(creditCollectionRef);
+
+    const cashSnapshot = await getDocs(cashCollectionRef);
+
+    const values = [];
+
+    creditSnapshot.forEach((doc) => {
+
+        const data = doc.data();
+        values.push(data); // Assuming 'value' is the field you want to extract
+    });
+
+    cashSnapshot.forEach((doc) => {
+        const data = doc.data();
+        values.push(data); // Assuming 'value' is the field you want to extract
+    });
+    return values
+
+};
+export const parseAndManipulateData = async () => {
+
+    try {
+        const productListColection = collection(db, 'productList')
+        const querySnapshot = await getDocs(productListColection);
+        const organizedData = {};
+
+        querySnapshot.forEach(doc => {
+
+            const data = doc.data();
+            const { cat_id, /* other properties you need */ } = data;
+
+            // Check if the cat_id exists as a key in the organizedData object
+            if (!organizedData[cat_id]) {
+                // If it doesn't exist, create an empty array for that cat_id
+                organizedData[cat_id] = [];
+            }
+            const id = `${cat_id}${organizedData[cat_id].length + 1}`;
+            const newItem = {
+                id,
+                ...data
+                // other properties here
+            };
+            // Push the current document data to the array corresponding to its cat_id
+            organizedData[cat_id].push(newItem);
+        });
+
+        // Now, organizedData object contains the parsed and manipulated data
+        console.log(organizedData);
+
+        // You can return the organized data if needed
+        return organizedData;
+    } catch (error) {
+        console.log('Error parsing and manipulating data:', error);
+        // Handle error appropriately
+        return null;
+    }
+};
+

@@ -10,6 +10,8 @@ import SendToFirebase from './Pages/SendToFirebase';
 import SignIn from './Pages/SignIn'; // Import SignIn component
 import { AppContext } from './Context';
 import { auth } from './Components/firebaseConfig'; // Import initialized Firebase auth
+import BottomNav from './Components/BottomNav';
+import Modal from './Components/Modal';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -56,10 +58,11 @@ const App = () => {
             <Route path="/" element={user ? <Dashboard /> : <Navigate to="/signin" />} />
             <Route path="/add" element={user ? <AddExpense /> : <Navigate to="/signin" />} />
             <Route path="/signin" element={user ? <Navigate to="/" /> : <SignIn />} />
-            <Route path="/pay" element={user ? <AddPayement /> : <Navigate to="/signin" />} />
+            <Route path="/pay" element={user ? <Modal /> : <Navigate to="/signin" />} />
             <Route path="/test" element={user ? <SendToFirebase /> : <Navigate to="/signin" />} />
             <Route path="/newProduct" element={user ? <ProductForm /> : <Navigate to="/signin" />} />
           </Routes>
+    {user &&      <BottomNav/>}
         </div>
       </BrowserRouter>
     </AppContext.Provider>
