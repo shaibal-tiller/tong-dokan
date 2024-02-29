@@ -8,24 +8,25 @@ import TotalBox from '../Components/TotalBox';
 import Chart from '../Components/Chart';
 import { data } from '../Assets/data';
 import { Link } from 'react-router-dom';
-import { getDataByDay, getMonthDetails, getValuesFromDocument, initializeBalance, initializeMonthData, month,  } from '../Components/firebaseUtil';
+import { fetchDataByMonthAndYear, getDataByDay, getMonthDetails, getValuesFromDocument, initializeBalance, initializeMonthData, month, } from '../Components/firebaseUtil';
 import Modal from '../Components/Modal';
 import { GetContext } from '../Context';
 import TransactionHistoryShort from '../Components/TransactionHistoryShort';
 import BottomNav from '../Components/BottomNav';
+import HistoryModal from '../Components/HistoryModal';
 
 const Dashboard = () => {
 
   const current_month = month[new Date().getMonth()]
   const myContext = GetContext()
   const current_date = new Date()
-  
-  
+  const [historyOn, setHistoryOn] = useState(false)
+
   // const [month_data, set_month_data] = useState([])
   // const [today_data, setToday_data] = useState(0)
   const [monthTotal, setMonthTotal] = useState(0)
 
- 
+
 
 
   // useEffect(() => {
@@ -59,7 +60,7 @@ const Dashboard = () => {
   const initializeSetup = () => {
     initializeBalance(myContext.setBalance)
     initializeMonthData(current_date, myContext.setMonthExpenseDetails)
-  
+
   }
   useEffect(() => {
     initializeSetup()
@@ -68,7 +69,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     getDataByDay()
-
+    fetchDataByMonthAndYear('Jan','24')
   }, [])
   const expetedTotal = (current_total) => {
     const currentDate = new Date();
@@ -90,7 +91,7 @@ const Dashboard = () => {
       <div className={''/* ` ${isModalOpen ? " blur-sm" : ""}` */}>
         <h1 className='text-xl font-semibold text-white'>Dashboard</h1>
 
-        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4  my-4'>
+        <div className={`${historyOn?"blur-md":""} grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4  my-4`}>
           <TotalBox amount={myContext.today_data} title={'Today'} sub={current_date.toLocaleDateString()} color={'#813D37'} />
           <TotalBox amount={myContext.balance} title={myContext.balance < 0 ? 'Advance' : 'Due sum'} sub={current_month} color={'#955637'} />
           <TotalBox amount={monthTotal} title={'This Month'} sub={current_month} color={'#68272E'} />
@@ -100,22 +101,22 @@ const Dashboard = () => {
           <Chart data={data} datakey={'expense'} />
         </div>
 
-    {/*     <div className=' absolute bottom-8 left-8 w-[5rem] gap-x-2 h-[5rem] rounded-full  right-0'>
+        {/*     <div className=' absolute bottom-8 left-8 w-[5rem] gap-x-2 h-[5rem] rounded-full  right-0'>
           <div onClick={handlePlusClick}> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#fff"
             className="w-full h-full  bg-expense-light rounded-full ">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
           </svg> </div>
         </div> */}
 
-        <TransactionHistoryShort />
-     {/*    <BottomNav /> */}
-        
+        <TransactionHistoryShort historyOn={historyOn} allListHandler={(e) => {console.log("ajhdjh"); setHistoryOn(true)}} />
+        {/*    <BottomNav /> */}
+
         {/*         <AverageExpense />
         <ExpenseChart />
         <FavoriteItems />
         <MonthlyProjection /> */}
       </div>
- 
+     {historyOn ?  <HistoryModal  handleClose={() => setHistoryOn(false)}/>:<></>}
     </div>
   );
 };

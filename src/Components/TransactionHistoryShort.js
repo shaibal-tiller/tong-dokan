@@ -2,16 +2,16 @@ import React, { useEffect, useState } from 'react'
 import { getValuesFromDocument, month } from './firebaseUtil'
 
 
-const TransactionItem = ({ data }) => {
+export const TransactionItem = ({ data, }) => {
 
-    return (<div className='  place-items-center w-full py-1 text-gray-300 bg-gray-300 rounded-md  bg-opacity-10 grid grid-cols-4 '>
+    return (<div className={`  place-items-center w-full py-1 ${data?.pay_mode=='credit'?'text-expense-light':'text-income-light'}  bg-gray-300 rounded-md  bg-opacity-10 grid grid-cols-4 `}>
         {/* product_name: 'test0',
         time: '2024-02-01T05:14:07.871Z',
         amount: 13,
         pay_mode: 'credit',
     previous_due: -77 */}
-        <div>{data?.product_name}</div>
-        <div>{new Date(data.time)?.toLocaleTimeString()}</div>
+        <div className='text-start text-xs'> {data?.product_name}</div>
+        <div className='text-xs'>{new Date(data.time)?.toLocaleTimeString()}</div>
         <div>{data?.amount}</div>
         <div>{data?.previous_due}</div>
     </div>)
@@ -36,7 +36,7 @@ export const dateSortingFunction = (item_a, item_b) => {
 }
 
 
-const formatData = (data) => {
+export const formatData = (data) => {
     const sortedData = data.sort(dateSortingFunction)
     const transformedData = {};
     sortedData.forEach(item => {
@@ -64,7 +64,7 @@ const formatData = (data) => {
 }
 
 const currentDate = new Date().toDateString()
-const TransactionHistoryShort = () => {
+const TransactionHistoryShort = ({ allListHandler, historyOn }) => {
 
     const [historyData, setHistoryData] = useState(null)
     const [loading, setLoading] = useState(false)
@@ -73,7 +73,7 @@ const TransactionHistoryShort = () => {
     useEffect(() => {
         setLoading(true)
         const monthYear = `${month[new Date().getMonth()]?.slice(0, 3)}-${new Date().getFullYear() % 2000}`;
-        
+
         try {
             getValuesFromDocument(monthYear)
                 .then(response => {
@@ -92,7 +92,12 @@ const TransactionHistoryShort = () => {
     }, [])
 
     return (
-        <div className='relative h-96 w-full border-2 p-4  rounded-t-2xl space-y-2  overflow-y-auto'>
+        <div className={`${historyOn ? 'blur-sm ' : ' '} relative h-96 w-full border-2 p-4  rounded-t-2xl space-y-2  overflow-y-auto`}>
+            <div className='sticky  top-0 flex justify-end'>
+                <button onClick={allListHandler} className='bg-gray-300  py-1 px-4 border-2 rounded-full
+             text-dark-1 font-semibold text-xs hover:scale-105 active:scale-95 hover:border-expense-light
+              active:text-expense-light' >Show All </button>
+            </div>
             {!loading && historyData ? (
                 <div className='py-5'>
                     {Object.entries(historyData)?.map(item => {
@@ -104,11 +109,7 @@ const TransactionHistoryShort = () => {
                                 {/* <p>{`Total: ${total['item[0]']}`}</p>  */}
                             </div>
                             {item[1]?.map((transaction, index) => {
-                                /*   temp_item[item[0]] = temp_item[item[0]] + transaction?.amount
                               
-                                  if (index == item[1]?.length - 1) {
-                                     setTotal({...total,   ...temp_item })
-                                  } */
                                 return <TransactionItem data={transaction} />
                             })}
                         </div>)
@@ -123,9 +124,7 @@ const TransactionHistoryShort = () => {
 
 
 
-            <button className='bg-gray-300 absolute right-2 top-0 py-1 px-4 border-2 rounded-full
-             text-dark-1 font-semibold text-xs hover:scale-105 active:scale-95 hover:border-expense-light
-              active:text-expense-light' >Show All </button>
+
 
         </div>
     )

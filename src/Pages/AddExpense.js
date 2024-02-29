@@ -2,16 +2,32 @@ import React, { useEffect, useState } from 'react';
 import '../Assets/form.css';
 import cash from '../Assets/cash.png';
 import credit from '../Assets/credit.png';
-import { cat_product_list, categories, data, products } from '../Assets/data';
+import { cat_product_list, categories } from '../Assets/data';
 import DatePicker from '../Components/DatePicker';
 import ItemViewer from './ItemViewerCard';
 import { GetContext } from '../Context';
-import { firestoreUpload, getProductlist, syncBalanceAmount, updateCash, updateCredit, } from '../Components/firebaseUtil';
-import { db } from '../Components/firebaseConfig';
-import { addDoc, collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { firestoreUpload, updateCash, updateCredit, } from '../Components/firebaseUtil';
+import { useLongPress } from 'use-long-press';
+const CustomModal = ({ close, product, setter }) => {
+    const [customPrice, setCustomPrice] = useState(product?.unit_price || 0)
+    return <div className='hide-input-arrow absolute top-0 w-full md:w-1/2 bottom-0 left-0 md:left-1/2 bg-white md:-translate-x-1/2 '>
+        <button className='text-xl px-4 py-1 text-red-600' onClick={close}>X</button>
+        <div className='flex w-3/5 mx-auto  rounded-md '>
+            <input onChange={(e) => setCustomPrice(parseInt(e.target.value))}
+                className=' text-black  max-w-40 text-5xl font-bold  outline-none  ' min={0} max={10} value={parseInt(customPrice || '0')} />
+            <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setter({ ...product, unit_price: customPrice }) }}
+                className='w-1/3 uppercase font-semibold  text-black text-3xl bg-amber-300 bg-opacity-40 hover:bg-opacity-50 rounded-lg  '>Set</button>
+        </div>
+    </div>
+}
 
 const InputBlock = ({ selected_cat_id, setSelected_cat_id, selected_product, setSelected_product, qty, setQty }) => {
-    const myContext = GetContext()//
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const bind = useLongPress(() => {
+        setIsModalOpen(true)
+    });
+
 
 
     const [productList, setProductList] = useState(cat_product_list[selected_cat_id]) //myContext.productList ? myContext.productList : getProductlist(db, 'productList', myContext.setProductList)
@@ -22,7 +38,8 @@ const InputBlock = ({ selected_cat_id, setSelected_cat_id, selected_product, set
 
 
     const handleProductClick = (event, item) => {
-        console.log(selected_product);
+        event.preventDefault()
+        event.stopPropagation()
         selected_product?.id == item?.id ? setQty(qty + 1) : setQty(1)
         setSelected_product(item)
     }
@@ -30,8 +47,8 @@ const InputBlock = ({ selected_cat_id, setSelected_cat_id, selected_product, set
 
 
     return (
-        <div className='space-y-4'>
-            <div className='grid grid-cols-5 gap-2'>
+        <div className='space-y-4 relative'>
+            <div className='grid grid-cols-6 gap-2'>
                 {categories.map(item => {
                     return <div className={`bg-slate-400 bg-opacity-50 p-2  active:scale-95
                     border-2  ${selected_cat_id == item?.id ? " border-light-1" : " border-transparent"} `}
@@ -43,6 +60,7 @@ const InputBlock = ({ selected_cat_id, setSelected_cat_id, selected_product, set
                 {productList && productList.length && productList?.map(item => {
                     return <div className={`bg-slate-400 bg-opacity-50 p-2 active:scale-95
                     border-2 ${selected_product?.name == item?.name ? " border-light-1" : " border-transparent"} `}
+                        {...bind()}
                         onClick={(e) => handleProductClick(e, item)}>
                         <img className='h-16 w-16 mx-auto' src={item?.image} /></div>
                 })}
@@ -70,6 +88,7 @@ const InputBlock = ({ selected_cat_id, setSelected_cat_id, selected_product, set
                     </div>
                 </div>
             </div>
+            {isModalOpen ? <CustomModal product={selected_product} setter={setSelected_product} close={() => setIsModalOpen(false)} /> : <></>}
         </div>
     );
 };
@@ -87,9 +106,7 @@ const AdjustQuantityButton = ({ onClick }) => (
         <path strokeLinecap='round' strokeLinejoin='round' d='M12 4.5v15' />
     </svg>
 );
-const oneTime =()=>{
-    console.log(Object.entries(cat_product_list).map(el=>el[1].map((e,index)=>{return{...e,id:`${e.cat_id}${index+1}`}})));
-}
+
 const modes = [{ name: "credit", name_bn: "বাকি", image: credit }, { name: "cash", name_bn: "নগদ", image: cash },]
 const AddExpense = () => {
     const [itemList, setItemList] = useState(null)
@@ -108,7 +125,7 @@ const AddExpense = () => {
     useEffect(() => {
         const initial_Date = new Date()
         setDateTime(initial_Date.toLocaleTimeString(), initial_Date.toISOString())
-        oneTime()
+
     }, [])
 
     const updateItemList = (formated_data) => {
@@ -134,8 +151,6 @@ const AddExpense = () => {
         }
 
     }
-
-
     const handleSubmit = (e) => {
 
         e.preventDefault()
@@ -222,10 +237,11 @@ const AddExpense = () => {
                         <InputBlock qty={qty} selected_cat_id={selected_cat_id} selected_product={selected_product}
                             setQty={setQty} setSelected_cat_id={setSelected_cat_id} setSelected_product={setSelected_product} />
                     </div>
-                    <button type='submit'
-                        className=' py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'>Add Item</button>
-                    <button className=' mx-1 py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'
-                        onClick={handleAddtoDatabase}>Send</button>
+                    {selected_product && <button type='submit'
+                        className=' py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md
+                         active:scale-95'>Add Item</button>}
+                   {itemList &&  <button className=' mx-1 py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'
+                        onClick={handleAddtoDatabase}>Send</button>}
                     {/*     <button className=' mx-1 py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'
                         onClick={handleTest}>Send test</button> */}
 

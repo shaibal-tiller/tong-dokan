@@ -374,4 +374,28 @@ export const parseAndManipulateData = async () => {
         return null;
     }
 };
-
+function getMonthNumber(monthString) {
+   
+    const months = ['Jan', 'Feb', 'Mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'Dec'];
+    
+    return months.indexOf(monthString);
+  }
+export  const fetchDataByMonthAndYear= async(month, year)=> {
+    // Construct the query
+   
+    const q = query(collection(db, 'payments'), 
+                    where('date', '>=', new Date('2024', getMonthNumber(month), 1)),
+                    where('date', '<', new Date('2024', getMonthNumber(month) + 1, 1)));
+   
+    try {
+        
+      const querySnapshot = await getDocs(q);
+      console.log(querySnapshot.empty);
+      querySnapshot.forEach((doc) => {
+        // Process each document here
+        console.log(doc.id, ' => ', doc.data());
+      });
+    } catch (e) {
+      console.log('Error fetching documents: ', e);
+    }
+  }

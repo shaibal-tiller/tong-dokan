@@ -61,6 +61,7 @@ const App = () => {
             <Route path="/pay" element={user ? <Modal /> : <Navigate to="/signin" />} />
             <Route path="/test" element={user ? <SendToFirebase /> : <Navigate to="/signin" />} />
             <Route path="/newProduct" element={user ? <ProductForm /> : <Navigate to="/signin" />} />
+            
           </Routes>
     {user &&      <BottomNav/>}
         </div>
