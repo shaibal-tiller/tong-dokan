@@ -25,7 +25,8 @@ export const getProductlist = async (db, collectionName, contextSetter) => {
 export const getTimeStamp = (date, time) => {
 
     const date_part = new Date(date).toDateString()
-    const time_part = new Date(time).toTimeString().split('GMT')[0].trim()
+
+    const time_part = time
 
     return `${date_part} ${time_part}`
 
@@ -40,7 +41,6 @@ export const getTimeStampFromObject = (date) => {
 export const firestoreUpload = async ({ cat_id, date, time, product_name, quantity, unit_price, pay_mode, previous_due }) => {
 
     const monthYear = `${month[new Date(date).getMonth()]?.slice(0, 3)}-${new Date(date).getFullYear() % 2000}`;
-
 
     try {
         const rootdocref = doc(db, 'transactions', monthYear)
@@ -375,27 +375,27 @@ export const parseAndManipulateData = async () => {
     }
 };
 function getMonthNumber(monthString) {
-   
+
     const months = ['Jan', 'Feb', 'Mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'Dec'];
-    
+
     return months.indexOf(monthString);
-  }
-export  const fetchDataByMonthAndYear= async(month, year)=> {
+}
+export const fetchDataByMonthAndYear = async (month, year) => {
     // Construct the query
-   
-    const q = query(collection(db, 'payments'), 
-                    where('date', '>=', new Date('2024', getMonthNumber(month), 1)),
-                    where('date', '<', new Date('2024', getMonthNumber(month) + 1, 1)));
-   
+
+    const q = query(collection(db, 'payments'),
+        where('date', '>=', new Date('2024', getMonthNumber(month), 1)),
+        where('date', '<', new Date('2024', getMonthNumber(month) + 1, 1)));
+
     try {
-        
-      const querySnapshot = await getDocs(q);
-      console.log(querySnapshot.empty);
-      querySnapshot.forEach((doc) => {
-        // Process each document here
-        console.log(doc.id, ' => ', doc.data());
-      });
+
+        const querySnapshot = await getDocs(q);
+        console.log(querySnapshot.empty);
+        querySnapshot.forEach((doc) => {
+            // Process each document here
+            console.log(doc.id, ' => ', doc.data());
+        });
     } catch (e) {
-      console.log('Error fetching documents: ', e);
+        console.log('Error fetching documents: ', e);
     }
-  }
+}

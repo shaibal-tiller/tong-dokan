@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { getValuesFromDocument, month } from './firebaseUtil'
 
-
 export const TransactionItem = ({ data, }) => {
 
-    return (<div className={`  place-items-center w-full py-1 ${data?.pay_mode=='credit'?'text-expense-light':'text-income-light'}  bg-gray-300 rounded-md  bg-opacity-10 grid grid-cols-4 `}>
+    return (<div className={`  place-items-center w-full py-1 ${data?.pay_mode == 'credit' ? 'text-expense-light' : 'text-income-light'}  bg-gray-300 rounded-md  bg-opacity-10 grid grid-cols-4 `}>
         {/* product_name: 'test0',
         time: '2024-02-01T05:14:07.871Z',
         amount: 13,
         pay_mode: 'credit',
     previous_due: -77 */}
-        <div className='text-start text-xs'> {data?.product_name}</div>
-        <div className='text-xs'>{new Date(data.time)?.toLocaleTimeString()}</div>
-        <div>{data?.amount}</div>
+        <div className='text-start text-xs'> {data?.product_name} x {data.quantity}</div>
+        <div className='text-xs'>{new Date(data.time)?.toLocaleTimeString() == "Invalid Date" ?
+            data.time : new Date(data.time)?.toLocaleTimeString()}</div>
+        <div className='text-xs'>{data.amount}</div>
         <div>{data?.previous_due}</div>
     </div>)
 }
@@ -56,6 +56,8 @@ export const formatData = (data) => {
             time,
             amount,
             pay_mode,
+            unit_price,
+            quantity,
             previous_due
         });
     });
@@ -64,17 +66,18 @@ export const formatData = (data) => {
 }
 
 const currentDate = new Date().toDateString()
-const TransactionHistoryShort = ({ allListHandler, historyOn }) => {
+const TransactionHistoryShort = ({ allListHandler, historyOn, analyticsOn }) => {
 
     const [historyData, setHistoryData] = useState(null)
     const [loading, setLoading] = useState(false)
     const [total, setTotal] = useState({})
 
     useEffect(() => {
-        setLoading(true)
+        // setLoading(true)
         const monthYear = `${month[new Date().getMonth()]?.slice(0, 3)}-${new Date().getFullYear() % 2000}`;
 
         try {
+
             getValuesFromDocument(monthYear)
                 .then(response => {
                     setHistoryData(formatData(response))
@@ -90,13 +93,27 @@ const TransactionHistoryShort = ({ allListHandler, historyOn }) => {
         }
 
     }, [])
+    const calculateTotalAmount = (transactions) => {
+        let totalAmount = 0;
+        for (const transaction of transactions) {
+            totalAmount += transaction.amount;
+        }
+        return totalAmount;
+    }
 
     return (
         <div className={`${historyOn ? 'blur-sm ' : ' '} relative h-96 w-full border-2 p-4  rounded-t-2xl space-y-2  overflow-y-auto`}>
             <div className='sticky  top-0 flex justify-end'>
-                <button onClick={allListHandler} className='bg-gray-300  py-1 px-4 border-2 rounded-full
+                <div className='flex gap-2 justify-end items-center'>
+                    <button onClick={allListHandler} className='bg-gray-300  py-1 px-4 border-2 rounded-full
              text-dark-1 font-semibold text-xs hover:scale-105 active:scale-95 hover:border-expense-light
               active:text-expense-light' >Show All </button>
+                    <button onClick={analyticsOn} className='bg-gray-300  py-1 px-4 border-2 rounded-full
+             text-dark-1 font-semibold text-xs hover:scale-105 active:scale-95 hover:border-expense-light
+              active:text-expense-light' >Analytics</button>
+                </div>
+
+                
             </div>
             {!loading && historyData ? (
                 <div className='py-5'>
@@ -106,10 +123,10 @@ const TransactionHistoryShort = ({ allListHandler, historyOn }) => {
                         return (<div className='space-y-1'>
                             <div className=' px-1 text-gray-300 grid grid-cols-2  place-items-center'>
                                 <p>{`${new Date(item[0]).toDateString()}`}</p>
-                                {/* <p>{`Total: ${total['item[0]']}`}</p>  */}
+                                <p>{`Total: ${calculateTotalAmount(item[1])}`}</p>
                             </div>
                             {item[1]?.map((transaction, index) => {
-                              
+
                                 return <TransactionItem data={transaction} />
                             })}
                         </div>)

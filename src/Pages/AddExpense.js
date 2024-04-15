@@ -119,12 +119,13 @@ const AddExpense = () => {
     const [test_index, set_test_index] = useState(0)
     const myContext = GetContext()
     const setDateTime = (date, time) => {
+        
         setDate(date)
         setTime(time)
     }
     useEffect(() => {
         const initial_Date = new Date()
-        setDateTime(initial_Date.toLocaleTimeString(), initial_Date.toISOString())
+        setDateTime(initial_Date.toISOString(), initial_Date.toLocaleTimeString(),)
 
     }, [])
 
@@ -168,7 +169,7 @@ const AddExpense = () => {
         updateItemList({ ...formated_data })
 
         const current_DateTime = new Date()
-        setDateTime(current_DateTime.toLocaleTimeString(), current_DateTime.toISOString())
+        setDateTime( current_DateTime.toISOString(),current_DateTime.toLocaleTimeString(),)
     }
 
     const handleAddtoDatabase = async (e) => {
@@ -187,6 +188,7 @@ const AddExpense = () => {
                     time: item.time,
                     date: item.date,
                 };
+                console.log(formattedData);
                 await firestoreUpload(formattedData)
                 total[`${formattedData.pay_mode}`] += formattedData?.unit_price * formattedData?.quantity
                 if (index == itemList?.length - 1) {
@@ -197,7 +199,7 @@ const AddExpense = () => {
             });
 
             const current_DateTime = new Date()
-            setDateTime(current_DateTime.toLocaleTimeString(), current_DateTime.toISOString())
+            setDateTime( current_DateTime.toISOString(),current_DateTime.toLocaleTimeString(),)
             setItemList(null);
         } catch (error) {
             console.error('Error adding transactions:', error);
@@ -240,7 +242,7 @@ const AddExpense = () => {
                     {selected_product && <button type='submit'
                         className=' py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md
                          active:scale-95'>Add Item</button>}
-                   {itemList &&  <button className=' mx-1 py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'
+                    {itemList && <button className=' mx-1 py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'
                         onClick={handleAddtoDatabase}>Send</button>}
                     {/*     <button className=' mx-1 py-2 font-semibold text-sm px-6 bg-expense-light bg-opacity-60 my-2 shadow-lg rounded-md active:scale-95'
                         onClick={handleTest}>Send test</button> */}

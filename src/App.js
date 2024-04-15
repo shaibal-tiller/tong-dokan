@@ -25,6 +25,7 @@ const App = () => {
       unsubscribe();
     };
   }, []);
+
   const [productList, setProductList] = useState(null)
   const [monthExpenseDetails, setMonthExpenseDetails] = useState(null)
   const [balance, setBalance] = useState(0)
@@ -52,8 +53,8 @@ const App = () => {
     <AppContext.Provider value={{ user, handleLogout, ...data }}>
       <BrowserRouter>
         <div className='bg-dark-1 h-screen w-full lg:overflow-hidden'>
-          <NavBar user={user}/>
-        
+          <NavBar user={user} />
+
           <Routes>
             <Route path="/" element={user ? <Dashboard /> : <Navigate to="/signin" />} />
             <Route path="/add" element={user ? <AddExpense /> : <Navigate to="/signin" />} />
@@ -61,9 +62,9 @@ const App = () => {
             <Route path="/pay" element={user ? <Modal /> : <Navigate to="/signin" />} />
             <Route path="/test" element={user ? <SendToFirebase /> : <Navigate to="/signin" />} />
             <Route path="/newProduct" element={user ? <ProductForm /> : <Navigate to="/signin" />} />
-            
+
           </Routes>
-    {user &&      <BottomNav/>}
+          {user && <BottomNav />}
         </div>
       </BrowserRouter>
     </AppContext.Provider>

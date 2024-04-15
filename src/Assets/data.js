@@ -105,7 +105,7 @@ export const products = [
     name_bn: 'এডভান্স',
     product_id: 12,
     image: 'https://mir-s3-cdn-cf.behance.net/project_modules/max_3840/92942263618023.5ab68f42db0f0.jpg',
-    unit_price: 17,
+    unit_price: 18,
     cat_id: 1,
     order: 2
   }, {
